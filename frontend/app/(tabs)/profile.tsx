@@ -5,8 +5,12 @@ import { useState } from 'react';
 
 export default function Profile() {
   const [address, setAddress] = useState(null);
-  const [isConnected, setIsConnected] = useState(true);
+  const [isConnected, setIsConnected] = useState(false);
   const tokenBalance = 500;
+
+  const connectWallet = () => {
+    setIsConnected(!isConnected)
+  }
 
   return (
     <SafeAreaView style={styles.container}>
@@ -14,7 +18,7 @@ export default function Profile() {
     
       {!isConnected ?  
         <View style={{flex:1, justifyContent:'center', alignItems:'center'}}>
-          <TouchableOpacity style={{alignItems:'center'}}>
+          <TouchableOpacity style={{alignItems:'center'}} onPress={connectWallet}>
             <Ionicons name="wallet" size={100} color="#FDE5D4" />
             <Text style={{color:'white', fontWeight:'500'}}>Connect to your wallet</Text>
           </TouchableOpacity>
@@ -22,7 +26,7 @@ export default function Profile() {
         :
         <View style={{flex:1}}>
           <View style={{flexDirection:'row-reverse'}}>
-            <TouchableOpacity style={{alignItems:'center'}}>
+            <TouchableOpacity style={{alignItems:'center'}} onPress={connectWallet}>
               <Ionicons name="wallet" size={100} color="#FDE5D4" />
               <Text style={{color:'white', fontWeight:'500'}}>My wallet</Text>
             </TouchableOpacity>
