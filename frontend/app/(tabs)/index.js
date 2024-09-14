@@ -199,6 +199,7 @@ const styles = StyleSheet.create({
     color: 'white',
     fontSize: 18,
     marginTop: 5,
+    textAlign:'center',
     alignContent: 'center',
   },
   mostRecentFood: {
