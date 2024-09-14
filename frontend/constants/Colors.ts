@@ -6,6 +6,13 @@
 const tintColorLight = '#0a7ea4';
 const tintColorDark = '#fff';
 export const darkGreen = "#445D48";
+export const beige = "#FDE5D4";
+export const mutedBeige = "#A89B8C";
+export const lightGreen = "#D6CC99";
+export const darkGrey = "#001524";
+export const brown = "#5E3023";
+
+
 export const Colors = {
   light: {
     text: '#11181C',
@@ -25,3 +32,4 @@ export const Colors = {
   },
 
 };
+
