@@ -14,17 +14,18 @@ export default function TabLayout() {
     <Tabs
       screenOptions={{
         tabBarStyle: {
-          backgroundColor:"#D6CC99",
+          backgroundColor: "#D6CC99",
         },
+        tabBarActiveTintColor: darkGreen,
+        tabBarInactiveTintColor: 'gray',
         headerShown: false,
-      
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={'home'} color={focused? darkGreen : 'gray'} />
+            <TabBarIcon name={'home'} color={color} />
           ),
         }}
       />
@@ -33,15 +34,16 @@ export default function TabLayout() {
         options={{
           title: 'Bites',
           tabBarIcon: ({ color, focused }) => (
-        <MaterialIcons name="cookie" size={28} color= {focused? darkGreen: 'gray'} />          ),
+            <MaterialIcons name="cookie" size={28} color={color} />
+          ),
         }}
       />
-       <Tabs.Screen
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={'person-sharp'} color={focused? darkGreen : 'gray'} />
+            <TabBarIcon name={'person-sharp'} color={color} />
           ),
         }}
       />
