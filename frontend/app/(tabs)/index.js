@@ -1,13 +1,16 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, SafeAreaView, Text, View, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, SafeAreaView, Text, View, Image, TouchableOpacity, Alert } from 'react-native';
 import { AnimatedCircularProgress } from 'react-native-circular-progress';
-import { darkGreen, beige, mutedBeige, lightGreen, darkGrey, brown } from '@/constants/Colors'; 
+import { darkGreen, beige, mutedBeige, lightGreen, mutedLightGreen, darkGrey, brown } from '@/constants/Colors'; 
+import * as ImagePicker from "expo-image-picker";
 
 export default function HomeScreen() {
-  const [bitesToday, setBitesToday] = useState(2); // Replace with actual state logic
-  const [streaks, setStreaks] = useState(5); // Replace with actual streak logic
-  const [treesPlanted, setTreesPlanted] = useState(3); // Replace with actual logic for trees planted
-  const mostRecentFood = require('@/assets/images/mostRecentFood.jpg');  // Replace with actual path to image
+  const [bitesToday, setBitesToday] = useState(2);
+  const [streaks, setStreaks] = useState(5); 
+  const [treesPlanted, setTreesPlanted] = useState(3); 
+  const [uploadStatus, setUploadStatus] = useState('initial'); 
+  const [beforeImage, setBeforeImage] = useState(null); 
+  const [afterImage, setAfterImage] = useState(null); 
 
   const bitesPerMonth = 30;
   const numTreeStages = 5;
@@ -21,22 +24,71 @@ export default function HomeScreen() {
     { stage: "VeryLarge", image: require('@/assets/images/Trees/5.png') }
   ];
 
-  // Calculate the tree stage based on the number of bites today
   const treeStage = Math.min(Math.floor(bitesToday / bitesPerStage), numTreeStages);
 
-  // Function to simulate uploading a bite and increasing the bite count
-  const handleUploadBite = () => {
-    setBitesToday(prevBites => prevBites + 1);
-    // If they reach 30 bites, reset the progress and grow a new tree
-    if (bitesToday + 1 >= bitesPerMonth) {
-      setBitesToday(0);
-      setTreesPlanted(treesPlanted + 1);
+  const getTreeImage = () => {
+    return treeStages[treeStage].image;
+  };
+
+  const pickCamera = async (type) => {
+    try {
+      const { status } = await ImagePicker.requestCameraPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert("Error", "Camera permission is required to take a photo.");
+        return;
+      }
+
+      const result = await ImagePicker.launchCameraAsync({
+        cameraType: ImagePicker.CameraType.front,
+        allowsEditing: true,
+        aspect: [1, 1],
+        quality: 0.9,
+      });
+
+      if (!result.canceled) {
+        const localUri = result.assets[0].uri;
+        if (type === 'before') {
+          setBeforeImage(localUri);
+        } else if (type === 'after') {
+          setAfterImage(localUri);
+        }
+      }
+    } catch (error) {
+      console.error("Error taking photo:", error);
+      Alert.alert("Error", "Unable to take photo.");
     }
   };
 
-  // Function to retrieve the correct tree image based on the current stage
-  const getTreeImage = () => {
-    return treeStages[treeStage].image;
+  const handleUploadBefore = async () => {
+    await pickCamera('before');
+    setUploadStatus('inProgress');
+  };
+
+  const handleUploadAfter = async () => {
+    await pickCamera('after');
+    setUploadStatus('completed');
+
+    // Increment bites and handle tree planting
+    setBitesToday(prevBites => {
+      const newBites = prevBites + 1;
+      if (newBites >= bitesPerMonth) {
+        setTreesPlanted(treesPlanted + 1);
+        return 0;
+      }
+      return newBites;
+    });
+
+    // Reset upload status to initial
+    setUploadStatus('initial');
+    setBeforeImage(null); // Clear before image
+    setAfterImage(null);  // Clear after image
+
+    // Show congratulatory alert
+    Alert.alert(
+      "Congratulations!",
+      "Great job! You've finished eating and didn't waste any food. Keep it up!",
+      [{ text: "OK", onPress: () => console.log("Alert closed") }]
+    );
   };
 
   return (
@@ -47,11 +99,11 @@ export default function HomeScreen() {
           size={200}
           width={10}
           fill={(bitesToday / bitesPerMonth) * 100}  // Percentage of bites in the month
-          tintColor={beige}
-          backgroundColor={mutedBeige}
+          tintColor={lightGreen}
+          backgroundColor={mutedLightGreen}
           rotation={0}
           lineCap="round"
-          padding = {30}
+          padding={30}
         >
           {() => (
             <View style={styles.treeBackground}>
@@ -63,33 +115,43 @@ export default function HomeScreen() {
 
       {/* Stats Section */}
       <View style={styles.statsContainer}>
-        {/* Bites Today */}
-        <View style={styles.stat}>
-          <Text style={styles.statValue}>{bitesToday}</Text>
-          <Text style={styles.statLabel}>Bites Today</Text>
-        </View>
-
-        {/* Streaks */}
         <View style={styles.stat}>
           <Text style={styles.statValue}>{streaks}</Text>
           <Text style={styles.statLabel}>Streaks</Text>
         </View>
-
-        {/* Trees Planted */}
+        <View style={styles.stat}>
+          <Text style={styles.statValue}>{bitesToday}</Text>
+          <Text style={styles.statLabel}>Bites This Month</Text>
+        </View>
         <View style={styles.stat}>
           <Text style={styles.statValue}>{treesPlanted}</Text>
           <Text style={styles.statLabel}>Trees Planted</Text>
         </View>
       </View>
 
-      {/* Most Recent Food Finished */}
-      <Text style={styles.sectionTitle}>Most Recent Food Finished</Text>
-      <Image source={mostRecentFood} style={styles.recentFoodImage} />
+      {/* Most Recent Food Section */}
+      <View style={styles.mostRecentFood}>
+        <Text style={styles.sectionTitle}>
+          {uploadStatus === 'completed' ? "Bite Completed" : "Upload Your Bite"}
+        </Text>
+        <Image
+          source={uploadStatus === 'completed' ? { uri: afterImage } : (uploadStatus === 'inProgress' ? { uri: beforeImage } : require('@/assets/images/placeholder.jpg'))}
+          style={styles.recentFoodImage}
+        />
+      </View>
 
-      {/* Upload Button */}
-      <TouchableOpacity style={styles.uploadContainer} onPress={handleUploadBite}>
-        <Text style={styles.uploadText}>Upload Today’s Bite!</Text>
-      </TouchableOpacity>
+      {/* Upload Buttons */}
+      {uploadStatus === 'initial' && (
+        <TouchableOpacity style={styles.uploadContainer} onPress={handleUploadBefore}>
+          <Text style={styles.uploadText}>Upload A Bite</Text>
+        </TouchableOpacity>
+      )}
+
+      {uploadStatus === 'inProgress' && (
+        <TouchableOpacity style={styles.uploadContainer} onPress={handleUploadAfter}>
+          <Text style={styles.uploadText}>Finish Eating</Text>
+        </TouchableOpacity>
+      )}
     </SafeAreaView>
   );
 }
@@ -103,13 +165,13 @@ const styles = StyleSheet.create({
   },
   progressCircleContainer: {
     alignItems: 'center',
-    marginBottom: 30,
+    marginBottom: 10,
   },
   treeBackground: {
     width: 120,
     height: 120, 
     borderRadius: 60, 
-    backgroundColor: '#e0f7fa', 
+    backgroundColor: beige, 
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -119,48 +181,54 @@ const styles = StyleSheet.create({
   },
   statsContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    width: '80%',
+    justifyContent: 'space-around',
+    width: '90%', 
+    maxWidth: 900, 
     marginBottom: 20,
   },
   stat: {
+    flex: 1,
     alignItems: 'center',
   },
   statValue: {
     color: 'white',
-    fontSize: 22,
+    fontSize: 30,
     fontWeight: 'bold',
   },
   statLabel: {
     color: 'white',
-    fontSize: 16,
+    fontSize: 18,
     marginTop: 5,
+    alignContent: 'center',
+  },
+  mostRecentFood: {
+    alignItems: 'center',
+    marginTop: 20,
   },
   sectionTitle: {
     color: 'white',
-    fontSize: 18,
-    marginBottom: 10,
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 20,
   },
   recentFoodImage: {
     width: 200,
-    height: 150,
+    height: 200,
     borderRadius: 10,
     marginBottom: 20,
   },
   uploadContainer: {
-    width: 250,
+    width: 200,
     height: 50,
-    backgroundColor: 'lightgray',
+    backgroundColor: beige,
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'blue',
     marginTop: 20,
   },
   uploadText: {
-    color: 'brown',
+    color: brown,
     fontSize: 16,
+    fontWeight: 'bold',
   },
 });
-
