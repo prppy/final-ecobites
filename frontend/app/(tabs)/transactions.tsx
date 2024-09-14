@@ -7,16 +7,15 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { darkGreen } from '@/constants/Colors';
-export default function HomeScreen() {
+export default function Transactions() {
   return (
     <SafeAreaView style={styles.container}>
-    <Text style={styles.welcomeText}> Home </Text>
-      
-  </SafeAreaView>
-  
+      <Text style={styles.welcomeText}> transactions </Text>
+        
+    </SafeAreaView>
+
   );
 }
-
 
 const styles = StyleSheet.create({
   container: {

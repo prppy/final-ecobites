@@ -7,10 +7,11 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { darkGreen } from '@/constants/Colors';
-export default function TabTwoScreen() {
+
+export default function Profile() {
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.welcomeText}> Hi </Text>
+      <Text style={styles.welcomeText}> profile </Text>
         
     </SafeAreaView>
 
