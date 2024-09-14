@@ -5,6 +5,8 @@ import { TabBarIcon } from '@/components/navigation/TabBarIcon';
 import { Colors } from '@/constants/Colors';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { darkGreen } from '@/constants/Colors';
+import MaterialIcons from '@expo/vector-icons/MaterialIcons';
+
 export default function TabLayout() {
   const colorScheme = useColorScheme();
 
@@ -27,12 +29,11 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="transactions"
+        name="bites"
         options={{
-          title: 'Transactions',
+          title: 'Bites',
           tabBarIcon: ({ color, focused }) => (
-            <TabBarIcon name={'wallet'} color={focused? darkGreen : 'gray'} />
-          ),
+        <MaterialIcons name="cookie" size={28} color= {focused? darkGreen: 'gray'} />          ),
         }}
       />
        <Tabs.Screen
