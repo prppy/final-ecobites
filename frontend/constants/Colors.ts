@@ -9,6 +9,7 @@ export const darkGreen = "#445D48";
 export const beige = "#FDE5D4";
 export const mutedBeige = "#A89B8C";
 export const lightGreen = "#D6CC99";
+export const mutedLightGreen = "#6E6C4E";
 export const darkGrey = "#001524";
 export const brown = "#5E3023";
 
