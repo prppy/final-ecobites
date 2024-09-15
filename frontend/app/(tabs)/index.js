@@ -330,6 +330,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     marginTop: 5,
     alignContent: 'center',
+    textAlign:'center'
   },
   mostRecentFood: {
     alignItems: 'center',
