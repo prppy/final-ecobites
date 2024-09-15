@@ -6,7 +6,7 @@ import * as ImagePicker from "expo-image-picker";
 import OpenAI from 'openai';
 import * as FileSystem from 'expo-file-system';
 import { manipulateAsync, FlipType, SaveFormat } from 'expo-image-manipulator';
-
+//import {OPENAI_API_KEY} from '@env';
 export default function HomeScreen() {
   const [bitesToday, setBitesToday] = useState(2);
   const [streaks, setStreaks] = useState(5); 
@@ -28,8 +28,9 @@ export default function HomeScreen() {
     { stage: "VeryLarge", image: require('@/assets/images/Trees/5.png') }
   ];
 
-  const OPENAI_API_KEY = "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"
-  const openai = new OpenAI({apiKey: OPENAI_API_KEY});
+ const OPENAI_API_KEY = "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";
+  
+ const openai = new OpenAI({apiKey: OPENAI_API_KEY});
 
   const treeStage = Math.min(Math.floor(bitesToday / bitesPerStage), numTreeStages);
 /*
@@ -51,7 +52,7 @@ export default function HomeScreen() {
       const compressedImage = await manipulateAsync(
         imageUri,
         [],
-        { compress: 0.2, format: SaveFormat.JPEG  }
+        { compress: 0.3, format: SaveFormat.JPEG  }
       );
       return compressedImage.uri;
     } catch (error) {
@@ -133,13 +134,13 @@ setBeforeImage(null); // Clear before image
 setAfterImage(null);  // Clear after image  
 }
 
-
 const convertUriToBase64 = async (uri) => {
   try {
     const base64 = await FileSystem.readAsStringAsync(uri, {
       encoding: FileSystem.EncodingType.Base64,
     });
     return base64;
+    
   } catch (error) {
     console.error('Error converting image to Base64:', error);
     return null;
@@ -148,9 +149,11 @@ const convertUriToBase64 = async (uri) => {
 
 
 
+
   const handleSubmit = async (beforeURI, afterURI) => {
     console.log("before image", beforeURI);
-console.log("after image", afterURI);
+    console.log("after image", afterURI);
+    console.log("API key", OPENAI_API_KEY);
 
     if (beforeURI === null || afterURI === null) {
       Alert.alert("Error", "Both images must be uploaded before submitting.");
@@ -160,23 +163,25 @@ console.log("after image", afterURI);
 
     
     
-    compressedBefore = await compressImage(beforeURI);
-    compressedAfter = await compressImage(afterURI);
+    
+    //compressedBefore = await compressImage(beforeURI);
+    //compressedAfter = await compressImage(afterURI);
 
-        
-    const base64BeforeImage = await convertUriToBase64(compressedBefore);
-   const base64AfterImage = await convertUriToBase64(compressedAfter);
+
+    
+    const base64BeforeImage = await convertUriToBase64(beforeURI);
+   const base64AfterImage = await convertUriToBase64(afterURI);
 
 
     const userContent = []
     userContent.push({ type: "image_url",
       image_url: {
-         url:` data:image/jpeg;base64,${base64BeforeImage}`
+         url:`data:image/jpeg;base64,${base64BeforeImage}`
       }
     },
     { type: "image_url",
       image_url: {
-        url: `data:image/jpeg;base64,${base64AfterImage}`
+       url:`data:image/jpeg;base64,${base64AfterImage}`
       }
     });
 
@@ -185,8 +190,6 @@ console.log("after image", afterURI);
       { role: "system", content: instructions },
       { role: "user", content: userContent },
     ];
-    console.log("user content: ", userContent)
-    console.log("messages: ", messages)
 
     await askGPT(messages);
   }
@@ -259,9 +262,6 @@ console.log("after image", afterURI);
 
       {/* Most Recent Food Section */}
       <View style={styles.mostRecentFood}>
-        <Text style={styles.sectionTitle}>
-        {uploadStatus === 'completed' ? "Bite Completed" : "Upload Your Bite"}
-        </Text>
         <Image
           source={uploadStatus === 'completed' ? { uri: afterImage } : (uploadStatus === 'inProgress' ? { uri: beforeImage } : require('@/assets/images/placeholder.jpg'))}
           style={styles.recentFoodImage}
